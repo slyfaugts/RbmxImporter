@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Studio - FORKT Community</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --bg-base: #09090b;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #a855f7; /* Ungu Premium */
+            --accent-glow: rgba(168, 85, 247, 0.3);
+            --hover-bg: rgba(255, 255, 255, 0.06);
+            --wa-color: #25D366;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none; 
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.12), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.08), transparent 25%);
+        }
+
+        .code-box {
+            user-select: text; 
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Sidebar Glassmorphism */
+        .sidebar {
+            width: 340px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .brand {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .brand img {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #a855f7, #6366f1, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #menu-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #menu-list li {
+            padding: 14px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            background: transparent;
+            border: 1px solid transparent;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #menu-list li .item-title {
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Badge tipe di list sidebar */
+        .item-badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-script {
+            background: rgba(168, 85, 247, 0.15);
+            color: #d8b4fe;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .badge-loadstring {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        #menu-list li .item-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        #menu-list li:hover {
+            background: var(--hover-bg);
+            transform: translateX(4px);
+        }
+
+        #menu-list li.active {
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+        }
+
+        #menu-list li.active .item-title {
+            color: var(--accent);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .header {
+            padding: 18px 32px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title i {
+            color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .credits {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-right: 1px solid var(--glass-border);
+            padding-right: 16px;
+        }
+
+        .wa-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(37, 211, 102, 0.1);
+            color: var(--wa-color);
+            border: 1px solid rgba(37, 211, 102, 0.2);
+            text-decoration: none;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+        }
+
+        .wa-btn:hover {
+            background: var(--wa-color);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        button.copy-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 0 16px;
+            height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            display: none; 
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        button.copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px var(--accent-glow);
+            background: #9333ea;
+        }
+
+        .raw-container {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Terminal/Code Block Box */
+        .code-box {
+            background: #0f111a;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            opacity: 0; 
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .code-header {
+            background: #151822;
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .mac-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+
+        pre {
+            padding: 24px;
+            margin: 0;
+            overflow: auto;
+            flex: 1;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                height: 38%;
+                border-right: none;
+                border-bottom: 1px solid var(--glass-border);
+            }
+            .content { height: 62%; }
+            .raw-container { padding: 16px; }
+            .header { padding: 16px; flex-wrap: wrap; gap: 12px; }
+            .credits { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand">
+            <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+            <h2>Script Studio</h2>
+        </div>
+        <ul id="menu-list">
+            <li style="text-align: center; color: var(--text-secondary); pointer-events: none;">Memuat list...</li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <div class="header-title" id="content-title">
+                <i class="ph ph-file-text"></i> <span>Pilih item dari sidebar</span>
+            </div>
+            
+            <div class="header-actions">
+                <div class="credits">Forkt Community</div>
+                
+                <a href="https://whatsapp.com/channel/0029VbDd3WGCnA7vWfsEBE3y" target="_blank" class="wa-btn" title="Join Saluran WA">
+                    <i class="ph-bold ph-whatsapp-logo"></i>
+                </a>
+                
+                <button id="copy-btn" class="copy-btn" onclick="copyText()">
+                    <i class="ph-bold ph-copy"></i> Salin
+                </button>
+            </div>
+        </div>
+
+        <div class="raw-container">
+            <div class="code-box">
+                <div class="code-header">
+                    <div class="mac-dot dot-red"></div>
+                    <div class="mac-dot dot-yellow"></div>
+                    <div class="mac-dot dot-green"></div>
+                </div>
+                <pre><code id="raw-content">-- Pilih item di sebelah kiri untuk melihat isi kodenya...</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuList = document.getElementById('menu-list');
+        const contentTitle = document.querySelector('#content-title span');
+        const rawContent = document.getElementById('raw-content');
+        const copyBtn = document.getElementById('copy-btn');
+        const codeBox = document.querySelector('.code-box');
+
+        async function loadMenu() {
+            try {
+                const response = await fetch('config.json');
+                if (!response.ok) throw new Error('Gagal memuat konfigurasi');
+                
+                const data = await response.json();
+                menuList.innerHTML = '';
+                
+                data.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    
+                    const isLoadstring = item.type === 'loadstring';
+                    const iconClass = isLoadstring ? 'ph-bold ph-terminal-window' : 'ph-bold ph-file-code';
+                    const badgeText = isLoadstring ? 'Loadstring' : 'Script';
+                    const badgeClass = isLoadstring ? 'badge-loadstring' : 'badge-script';
+                    
+                    li.innerHTML = `
+                        <div class="item-top">
+                            <div class="item-title"><i class="${iconClass}"></i> ${item.title}</div>
+                            <span class="item-badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                        ${item.description ? `<div class="item-desc">${item.description}</div>` : ''}
+                    `;
+                    
+                    li.onclick = () => selectMenuItem(item, li);
+                    menuList.appendChild(li);
+
+                    // Otomatis pilih item pertama saat halaman dimuat
+                    if (index === 0) {
+                        selectMenuItem(item, li);
+                    }
+                });
+            } catch (error) {
+                menuList.innerHTML = `<li style="color: #ef4444; text-align:center;">Gagal memuat config.json</li>`;
+            }
+        }
+
+        async function selectMenuItem(item, element) {
+            document.querySelectorAll('#menu-list li').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            contentTitle.textContent = "Memuat data...";
+            rawContent.textContent = "Loading...";
+            copyBtn.style.display = 'none';
+            
+            codeBox.style.animation = 'none';
+            codeBox.offsetHeight; 
+            codeBox.style.animation = 'slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+
+            if (item.type === 'loadstring') {
+                // Jika tipenya loadstring, langsung tampilkan string kodenya
+                contentTitle.textContent = item.title;
+                rawContent.textContent = item.code || '-- Loadstring belum diisi di config.json';
+                copyBtn.style.display = 'flex';
+            } else {
+                // Jika tipenya script, fetch file .lua nya
+                try {
+                    const response = await fetch(item.file);
+                    if (!response.ok) throw new Error('File tidak ditemukan');
+                    
+                    const textData = await response.text();
+                    contentTitle.textContent = item.title;
+                    rawContent.textContent = textData;
+                    copyBtn.style.display = 'flex'; 
+                } catch (error) {
+                    contentTitle.textContent = item.title;
+                    rawContent.textContent = "-- Error: Gagal memuat file script. Pastikan path file benar di config.json.";
+                    copyBtn.style.display = 'flex';
+                }
+            }
+        }
+
+        function copyText() {
+            const textToCopy = rawContent.textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = `<i class="ph-bold ph-check"></i> Tersalin!`;
+                copyBtn.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                    copyBtn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        loadMenu();
+    </script>
+</body>
+</html>
